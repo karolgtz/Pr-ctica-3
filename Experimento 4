@@ -1,0 +1,40 @@
+// Programa para el ESP8266 para generar un sensor táctil basado en capacitancia
+// Por Camilo Duque
+// camilo.duque@tec.mx
+
+#include <CapacitiveSensor.h>
+//Crear e indicar pines del sensor
+#define SendPin 14    // D5 en ESP8266
+#define BotonPin 12   // D6 en ESP8266
+
+//14 -> Sender 
+//12 -> Receiver
+CapacitiveSensor   Boton = CapacitiveSensor(SendPin,BotonPin);
+
+// umbrales para calibración de sensores
+int umbralBoton =10000;    // Umbral de activación del botón
+int TimeOut = 500;         // Tiempo de espera máximo
+
+void setup()
+{
+  pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
+  Boton.set_CS_AutocaL_Millis(0xFFFFFFFF);  // Configurar no hacer el autocalibración
+  Boton.set_CS_Timeout_Millis(TimeOut);         // Configurar el tiempo de espera máximo, si no se activa el boton luego de 500ms, continuar
+  Serial.begin(115200);  
+}
+
+void loop()
+{
+  //Almacenar lectura del sensor en una variable
+  long lectura =  Boton.capacitiveSensor(30);
+
+  //Comparar lectura
+  if(lectura > umbralBoton)
+    digitalWrite(LED_BUILTIN,HIGH); // Recordar que el LED integrado del ESP8266 es de lógica invertida!!!
+  else
+    digitalWrite(LED_BUILTIN,LOW);  // Recordar que el LED integrado del ESP8266 es de lógica invertida!!!
+
+  Serial.println("Boton:");
+  Serial.println(lectura);
+  delay(1);
+}
