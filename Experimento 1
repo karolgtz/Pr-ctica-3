@@ -1,0 +1,44 @@
+import PySimpleGUI as sg
+import serial
+ 
+# Crear el objeto de conexión serial
+arduino = serial.Serial('COM3', 115200)
+ 
+# Inicialización de parámetros del Instrumento Virtual
+Conta=0
+Tespera = 100 # en milisegundos
+ 
+# Configuración de elementos de la ventana
+layout = [  [sg.InputText(default_text=Conta,size=(8, 10),justification='center',background_color='gray', text_color='black', font='Arial 50 bold', key='CajaConta'), 
+            sg.VerticalSeparator(),
+            sg.Button('Reset', key='boton')]]
+ 
+# Crear la ventana
+window = sg.Window('Mi Primer Insturmento Virtual v0.1', layout).Finalize()
+ 
+ 
+# Ciclo infinito para atender eventos
+while True:             
+    
+    # Capturar eventos y valores de elementos de la ventana
+    event, values = window.read(timeout=Tespera)
+ 
+    # Leer el puerto serie
+    arduino.write(b'b')
+    Conta=int(arduino.readline().strip())*0.5
+      
+    # Interrumpir el ciclo con el evento Cerrar ventana
+    if event in (sg.WIN_CLOSED, 'Cancel'):
+        break
+    
+    if event in ('boton'):
+        arduino.write(b'c')
+        Conta=0     
+ 
+    # si hay eventos, procesar 
+    if event:
+        # Actualizar resultados
+        window['CajaConta'].update(Conta)
+ 
+window.close()
+arduino.close()
