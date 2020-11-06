@@ -1,0 +1,51 @@
+import PySimpleGUI as sg
+import serial
+
+# Crear el objeto de conexión serial
+arduino = serial.Serial('COM3', 115200)
+
+# Inicialización de parámetros del Instrumento Virtual
+lectura=0
+umbralBoton=10000
+TimeOut = 500 # en milisegundos
+
+# Configuración de elementos de la ventana
+layout = [  [sg.InputText(default_text=lectura,size=(8, 10),justification='center',background_color='gray', text_color='black', font='Arial 50 bold', key='Cajalectura'), 
+            sg.VerticalSeparator(),
+            sg.Button('Reset', key='boton'),
+            sg.Slider(range=(0,10000), resolution=1000, default_value=0, size=(20,10), orientation='h', enable_events=True, key='umbralBoton'),
+            sg.Slider(range=(0,500), resolution=100, default_value=0, size=(20,10), orientation='h', enable_events=True, key='TimeOut')]]
+
+# Crear la ventana
+window = sg.Window('Mi Primer Insturmento Virtual v0.1', layout).Finalize()
+
+
+# Ciclo infinito para atender eventos
+while True:             
+    
+    # Capturar eventos y valores de elementos de la ventana
+    event, values = window.read(timeout=TimeOut)
+    event, values = window.read(umbralBoton)
+
+    # Leer el puerto serie
+    arduino.write(b'b')
+    lectura=int(arduino.readline().strip())
+
+    TimeOut=int(values['TimeOut'])
+    umbralBoton=int(values['umbralBoton'])
+
+    # Interrumpir el ciclo con el evento Cerrar ventana
+    if event in (sg.WIN_CLOSED, 'Cancel'):
+        break
+    
+    if event in ('boton'):
+        arduino.write(b'c')
+        lectura=0     
+
+    # si hay eventos, procesar 
+    if event:
+        # Actualizar resultados
+        window['Cajalectura'].update(lectura)
+
+window.close()
+arduino.close()
