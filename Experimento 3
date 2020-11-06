@@ -1,0 +1,34 @@
+// Creado por Camilo Duque camilo.duque@tec.mx
+// Obtener el valor del canal analógico A0 del ESP8266
+// Enviar por el puerto serie
+// En esta versión el ESP8266 solo envía el valor de A0
+// cuando recibe un comando con la letra "a" o código 97 en ASCII
+
+// Declarar variable de canal para A0
+float Ch0;
+byte incomingByte = 0;
+
+// Declarar variable para el tiempo de espera enntre cada lectura
+int TiempoEspera=1;
+
+void setup() {
+  // Inicializar el puerto serie para una velocidad 
+  Serial.begin(115200);
+}
+
+void loop() {
+  if (Serial.available() > 0) {   // Hay datos recibidos?
+    // read the incoming byte:
+    incomingByte = Serial.read(); //leer el comando recibido
+
+    if (incomingByte == 97) {     // si el comando es "a" entonces enviar A0
+      // Leer el A0 y ajustar según voltaje de referencia y número bits (2^10=1024)
+      Ch0 = analogRead(A0)*210.0/1023.0;
+      // Enviar por el puerto serie el valor de Ch0
+      Serial.println(Ch0,4);
+    }
+  }
+
+  // Esperar
+  delay(TiempoEspera);
+}
